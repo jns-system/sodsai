@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JNS.CONNECT - บริการรับผ่อนสินค้า</title>
+    <!-- Import Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Mitr:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'jns-pink': '#FF9ED2',
+                        'jns-pink-light': '#FFE4F2',
+                        'jns-blue': '#96C9F4',
+                        'jns-purple': '#B1AFFF',
+                        'jns-purple-light': '#E2DDF8',
+                        'jns-green-light': '#D0F2DF',
+                        'jns-green': '#4ADE80',
+                        'jns-yellow-light': '#FFF9C4',
+                        'jns-yellow': '#FACC15',
+                        'jns-red-light': '#FECDD3',
+                        'jns-red': '#FB7185',
+                        'jns-dark': '#4A4A68',
+                    },
+                    fontFamily: {
+                        'sans': ['Mitr', 'sans-serif'],
+                        'eng': ['Fredoka', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'cute': '0 10px 25px -5px rgba(177, 175, 255, 0.4), 0 8px 10px -6px rgba(177, 175, 255, 0.2)',
+                        'sticker': '0 0 0 4px white, 0 8px 20px rgba(177, 175, 255, 0.3)',
+                        'button': '0 4px 14px 0 rgba(255, 158, 210, 0.5)',
+                        'inner-cute': 'inset 0 2px 4px 0 rgba(255, 255, 255, 0.5)',
+                    },
+                    backgroundImage: {
+                        'plaid': 'repeating-linear-gradient(transparent, transparent 15px, rgba(255,158,210,.08) 15px, rgba(255,158,210,.08) 30px), repeating-linear-gradient(90deg, transparent, transparent 15px, rgba(255,158,210,.08) 15px, rgba(255,158,210,.08) 30px)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Mitr', sans-serif;
+            background-color: #FFF5F8; /* สีพื้นหลังชมพูอ่อนพาสเทลแบบ Solid */
+            color: #4A4A68;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            position: relative;
+        }
+
+        /* Dot pattern overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.8) 2px, transparent 2px);
+            background-size: 24px 24px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .font-eng { font-family: 'Fredoka', 'Mitr', sans-serif !important; }
+
+        /* Custom Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(4deg); }
+        }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+
+        @keyframes float-delayed {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(-4deg); }
+        }
+        .animate-float-delayed { animation: float-delayed 5s ease-in-out infinite; animation-delay: 1.5s; }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-6deg) scale(1); }
+            50% { transform: rotate(6deg) scale(1.15); }
+        }
+        .animate-wiggle { animation: wiggle 1.2s ease-in-out infinite; display: inline-block; }
+
+        @keyframes bounce-sm {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-bounce-sm { animation: bounce-sm 2s ease-in-out infinite; display: inline-block; }
+
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        .animate-pulse-soft { animation: pulse-soft 2.5s ease-in-out infinite; }
+
+        /* JNS CONNECT Text Magic - เปลี่ยนเป็นสีเดียว */
+        .text-magic {
+            color: #FF7EB3;
+            text-shadow: 3px 3px 0px rgba(255, 255, 255, 0.9), 5px 5px 10px rgba(255, 126, 179, 0.2);
+            -webkit-text-stroke: 1px rgba(255,255,255,1);
+        }
+
+        /* Glassmorphism Cute Cards */
+        .card-cute {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 4px solid rgba(255, 255, 255, 1);
+            border-radius: 32px;
+            box-shadow: 0 12px 30px -10px rgba(177, 175, 255, 0.3), inset 0 2px 10px rgba(255,255,255,0.6);
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .card-cute:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 15px 35px -10px rgba(177, 175, 255, 0.4), inset 0 2px 10px rgba(255,255,255,0.8);
+        }
+
+        /* Pill cards for info */
+        .pill-cute {
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid white;
+            border-radius: 9999px;
+            box-shadow: 0 6px 15px -5px rgba(177, 175, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .pill-cute:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -5px rgba(177, 175, 255, 0.3);
+        }
+
+        /* Hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Modal specific styles */
+        .modal-overlay {
+            background-color: rgba(177, 175, 255, 0.4);
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4 relative pb-24">
+
+    <!-- Decorative Elements (Floating blobs/stars) -->
+    <div class="fixed top-12 left-4 md:left-12 w-16 h-16 animate-float opacity-80 -z-10 drop-shadow-lg">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 10 L62 38 L92 40 L68 60 L78 90 L50 75 L22 90 L32 60 L8 40 L38 38 Z" fill="#FFE4F2" stroke="white" stroke-width="4" stroke-linejoin="round"/>
+        </svg>
+    </div>
+    <div class="fixed top-32 right-2 md:right-10 w-20 h-20 animate-float-delayed opacity-70 -z-10 drop-shadow-md">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 50 Q50 0 80 50 Q50 100 20 50 Z" fill="#D4F1F9" stroke="white" stroke-width="4"/>
+            <circle cx="50" cy="50" r="10" fill="white" opacity="0.6"/>
+        </svg>
+    </div>
+    <div class="fixed bottom-32 left-8 w-14 h-14 animate-float opacity-90 -z-10 drop-shadow-lg" style="animation-delay: 2s;">
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="40" fill="#E2DDF8" stroke="white" stroke-width="6"/>
+            <path d="M35 50 Q50 65 65 50" stroke="white" stroke-width="6" stroke-linecap="round" fill="none"/>
+            <circle cx="35" cy="40" r="6" fill="white"/>
+            <circle cx="65" cy="40" r="6" fill="white"/>
+        </svg>
+    </div>
+
+    <!-- Main Content Container -->
+    <main class="max-w-xl mx-auto space-y-6 relative z-10">
+        
+        <!-- Header -->
+        <header class="text-center relative pt-4 mb-8">
+            <!-- Logo area -->
+            <div class="relative w-32 h-32 sm:w-36 sm:h-36 mx-auto mb-5">
+                <div class="absolute inset-0 bg-jns-pink rounded-[2.5rem] rotate-12 animate-spin opacity-40 blur-md" style="animation-duration: 10s;"></div>
+                <div class="absolute inset-0 bg-white rounded-full scale-105 shadow-cute"></div>
+                <img src="https://img2.pic.in.th/April-Dump.png" alt="JNS.CONNECT Logo" class="absolute inset-1.5 w-[calc(100%-12px)] h-[calc(100%-12px)] object-cover rounded-full border-[3px] border-jns-pink/30 z-10" onerror="this.src='https://placehold.co/400x400/FFEBF5/B1AFFF?text=JNS+CONNECT'">
+            </div>
+            
+            <h1 class="font-eng text-4xl sm:text-5xl font-extrabold text-magic mb-3 tracking-widest drop-shadow-sm">JNS.CONNECT</h1>
+            
+            <div class="pill-cute inline-block px-6 py-2.5">
+                <p class="text-jns-purple font-semibold text-[15px] sm:text-base flex items-center justify-center gap-1.5">
+                    เจเอนเอสบริการรับผ่อนสินค้าทั่วจักรวาล
+                    <span class="animate-wiggle text-xl">⭐️</span>
+                </p>
+            </div>
+        </header>
+
+        <!-- Contact Section Button -->
+        <section class="text-center mb-6 relative z-20">
+            <!-- Glow Effect -->
+            <div class="absolute left-1/2 top-0 -translate-x-1/2 w-4/5 h-full bg-white blur-xl opacity-60 animate-pulse-soft rounded-full"></div>
+            
+            <button onclick="openModal('contactModal')" class="relative inline-block mx-auto group focus:outline-none hover:-translate-y-2 transition-transform duration-400">
+                <!-- Floating cute icons -->
+                <div class="absolute -top-4 -left-3 text-2xl animate-wiggle z-10 drop-shadow-md">🌸</div>
+                <div class="absolute -bottom-3 -right-3 text-2xl animate-bounce-sm z-10 drop-shadow-md" style="animation-delay: 0.5s;">✨</div>
+
+                <!-- Card Body (Super bubbly) -->
+                <div class="bg-blue-400 p-1.5 rounded-full shadow-[0_4px_14px_0_rgba(96,165,250,0.5)]">
+                    <div class="bg-white/95 backdrop-blur-sm rounded-full px-7 py-3 flex flex-col items-center justify-center gap-1.5 relative overflow-hidden group-hover:bg-white transition-colors">
+                        
+                        <div class="flex items-center gap-2 z-10">
+                            <span class="text-2xl animate-bounce-sm">🧸</span>
+                            <span class="font-bold text-xl text-blue-500">ช่องทางการติดต่อ</span>
+                            <span class="text-2xl animate-bounce-sm" style="animation-delay: 0.3s;">🎀</span>
+                        </div>
+                        
+                        <div class="bg-blue-400 text-white px-4 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-1.5 animate-pulse-soft z-10">
+                            จิ้มตรงนี้เลยค้าบ <span class="animate-wiggle text-base">👇🏻</span>
+                        </div>
+                    </div>
+                </div>
+            </button>
+        </section>
+
+        <!-- Slogans & Info Blocks -->
+        <div class="space-y-4">
+            <!-- Slogan Block -->
+            <div class="card-cute px-4 py-3 text-center">
+                <p class="font-bold flex items-center justify-center flex-wrap text-[12.5px] sm:text-[14px] leading-relaxed">
+                    <span class="text-pink-500">บริการผ่อนสินค้าไอที</span>
+                    <span class="text-gray-300 mx-1.5">|</span>
+                    <span class="text-jns-purple">iPhone</span>
+                    <span class="text-gray-300 mx-1.5">|</span>
+                    <span class="text-jns-purple">iPad</span>
+                    <span class="text-gray-300 mx-1.5">|</span>
+                    <span class="text-purple-500">ศัลยกรรม</span>
+                </p>
+            </div>
+
+            <!-- Commerce Registration Block -->
+            <div class="pill-cute px-5 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 bg-emerald-50">
+                <p class="font-bold text-emerald-600 text-[14px] flex items-center gap-2">
+                    <span class="bg-white w-8 h-8 rounded-full flex items-center justify-center shadow-sm">
+                        <span class="animate-bounce-sm text-lg">✅</span>
+                    </span>
+                    จดทะเบียนภาณิชย์ถูกต้อง
+                </p>
+                <button onclick="openModal('commerceModal')" class="bg-white hover:bg-emerald-100 text-emerald-700 text-[13px] font-bold py-2 px-4 rounded-full border-2 border-emerald-200 shadow-sm transition-all hover:scale-105 flex items-center gap-1.5 w-full sm:w-auto justify-center">
+                    เช็คทะเบียน 𝗖𝗹𝗶𝗰𝗸 !
+                    <span class="animate-wiggle text-lg">👆🏻</span>
+                </button>
+            </div>
+
+            <!-- Store Hours Block -->
+            <div class="pill-cute px-5 py-3.5 relative overflow-hidden group bg-yellow-50">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 relative z-10">
+                    <p class="font-bold text-amber-600 text-[14px] flex items-center gap-2">
+                        <span class="bg-white w-8 h-8 rounded-full flex items-center justify-center shadow-sm">
+                            <span class="animate-wiggle text-lg">🏪</span>
+                        </span>
+                        เปิดร้านทุกวัน 08.00 - เที่ยงคืน
+                    </p>
+                    <div id="storeStatusContainer" class="px-4 py-1.5 rounded-full font-bold text-[13px] shadow-inner-cute flex items-center justify-center gap-2 transition-colors duration-500 w-full sm:w-auto">
+                        <!-- Content will be injected by JS -->
+                        <span id="statusIcon" class="text-lg"></span>
+                        <span id="statusText">กำลังเช็ค...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Section -->
+        <section class="card-cute p-5 sm:p-6 mt-6">
+            <h2 class="text-lg font-bold mb-4 flex items-center justify-center gap-2 text-jns-purple bg-white/90 py-2 rounded-2xl shadow-sm border border-white">
+                <span class="text-2xl animate-bounce-sm">🎀</span> รวมบริการร้าน JNS.CONNECT
+            </h2>
+            <div class="space-y-3">
+                <!-- Service 1 -->
+                <div class="bg-white p-3.5 rounded-[24px] border-2 border-blue-100 shadow-sm flex items-start gap-3.5 hover:-translate-y-1 transition-all group">
+                    <div class="w-12 h-12 rounded-full bg-blue-100 border-2 border-white shadow-inner-cute flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <span class="text-2xl animate-wiggle">📱</span>
+                    </div>
+                    <div class="pt-1">
+                        <h3 class="font-bold text-blue-600 text-[15px]">ผ่อน iPhone iPad</h3>
+                        <p class="text-[13px] text-gray-500 mt-0.5 font-medium">เครื่องศูนย์ไทยแท้ ประกันศูนย์เต็ม</p>
+                    </div>
+                </div>
+                
+                <!-- Service 2 -->
+                <div class="bg-white p-3.5 rounded-[24px] border-2 border-pink-100 shadow-sm flex items-start gap-3.5 hover:-translate-y-1 transition-all group">
+                    <div class="w-12 h-12 rounded-full bg-pink-100 border-2 border-white shadow-inner-cute flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <span class="text-2xl animate-bounce-sm" style="animation-delay: 0.5s;">💉</span>
+                    </div>
+                    <div class="pt-1">
+                        <h3 class="font-bold text-pink-600 text-[15px]">ผ่อนออมศัลยกรรมและหัตกรรม</h3>
+                        <p class="text-[13px] text-gray-500 mt-0.5 font-medium">สวยเป๊ะปัง ผ่อนสบายๆ ตามใจคุณ</p>
+                    </div>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="bg-white p-3.5 rounded-[24px] border-2 border-green-100 shadow-sm flex items-start gap-3.5 hover:-translate-y-1 transition-all group">
+                    <div class="w-12 h-12 rounded-full bg-green-100 border-2 border-white shadow-inner-cute flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <span class="text-2xl animate-float" style="animation-duration: 2s;">💸</span>
+                    </div>
+                    <div class="pt-1">
+                        <h3 class="font-bold text-green-600 text-[15px]">วางดาวน์สินค้า IT</h3>
+                        <p class="text-[13px] text-gray-500 mt-0.5 font-medium">จ่ายงวดเดียวรับของไปใช้งานได้เลย</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rules Section -->
+        <section class="card-cute p-5 sm:p-6 bg-plaid">
+            <h2 class="text-lg font-bold mb-4 flex items-center justify-center gap-2 text-pink-500 bg-white/90 py-2 rounded-2xl shadow-sm border border-white">
+                <span class="text-2xl animate-wiggle">📝</span> รายละเอียดสำคัญอ่าน
+            </h2>
+            
+            <div class="space-y-3 bg-white/80 p-5 rounded-[24px] border-2 border-white shadow-sm">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                        <span class="text-lg animate-bounce-sm">🔞</span>
+                    </div>
+                    <p class="text-[13px] text-gray-700 leading-relaxed font-semibold pt-1.5">ลูกค้าที่อายุต่ำกว่า 18ปี ควรปรึกษาผู้ปกครองให้เรียบร้อย หรือให้ร้านโทรไปขออนุญาตได้</p>
+                </div>
+                
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                        <span class="text-lg animate-float" style="animation-duration: 2s;">💸</span>
+                    </div>
+                    <p class="text-[13px] text-gray-700 leading-relaxed font-semibold pt-1.5">ยกเลิกผ่อนทางร้าน<span class="text-red-500">ไม่คืนเงินทุกกรณี</span> และไม่สามารถยกยอดผ่อนให้ลูกค้าท่านอื่นได้</p>
+                </div>
+
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                        <span class="text-lg animate-wiggle" style="animation-delay: 0.3s;">📄</span>
+                    </div>
+                    <p class="text-[13px] text-gray-700 leading-relaxed font-semibold pt-1.5">ใช้เอกสารตัวจริง ทางพบเอกสารปลอมทางร้านจะดำเนินคดีตามกฏหมายทันที</p>
+                </div>
+
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                        <span class="text-lg animate-bounce-sm" style="animation-delay: 0.6s;">🏦</span>
+                    </div>
+                    <p class="text-[13px] text-gray-700 leading-relaxed font-semibold pt-1.5">บัญชีโอนยอดต้องเป็นชื่อเดียวกับผู้ผ่อนเท่านั้นหรือนามสกุลเดียวกัน</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Credit -->
+    <footer class="text-center mt-10 relative z-10 pb-4">
+        <p class="text-xs font-eng text-jns-purple font-bold tracking-wider">
+            © 2026 JNS.CONNECT
+        </p>
+    </footer>
+
+    <!-- Modals -->
+
+    <!-- Commerce Registration Modal -->
+    <div id="commerceModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 modal-overlay transition-opacity">
+        <div class="bg-white/95 backdrop-blur-md rounded-[2.5rem] w-full max-w-sm overflow-hidden shadow-2xl border-4 border-white transform transition-all relative">
+            
+            <!-- Modal Header -->
+            <div class="bg-emerald-100 p-4 text-center relative border-b-2 border-white">
+                <h3 class="font-bold text-lg text-emerald-700 flex items-center justify-center gap-1.5">
+                    <span class="animate-bounce-sm text-2xl">📝</span>
+                    ทะเบียนพาณิชย์
+                </h3>
+                <button onclick="closeModal('commerceModal')" class="absolute right-4 top-4 text-emerald-700 hover:text-red-500 hover:bg-red-50 hover:rotate-90 transition-all bg-white w-8 h-8 rounded-full flex items-center justify-center shadow-sm border-2 border-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-6 space-y-5 flex flex-col items-center">
+                
+                <div class="w-full bg-white border-[3px] border-yellow-100 rounded-[24px] p-4 text-center relative shadow-sm">
+                    <div class="absolute -right-3 -top-3 w-10 h-10 bg-yellow-200 rounded-full flex items-center justify-center shadow-sm animate-wiggle">📢</div>
+                    <p class="font-bold text-jns-dark text-[14px] mb-2 pt-1">
+                        ชื่อร้านเดิม JIRACAFE
+                    </p>
+                    <p class="text-[13px] text-gray-600 font-medium">ชื่อบัญชีโอนต้องเป็น<br><span class="inline-block font-bold text-red-500 bg-red-50 border border-red-100 px-3 py-1 rounded-full mt-2 shadow-inner-cute">จิระพงศ์ แซ่ลิ้ม</span><br>เท่านั้น</p>
+                </div>
+
+                <a href="https://drive.google.com/file/d/1b768dLup71FbA4YBZOduGvvNKttsCjxO/view?usp=drive_link" target="_blank" class="group relative inline-flex items-center justify-center px-8 py-3 font-bold text-emerald-700 transition-all duration-300 bg-emerald-100 border-2 border-white rounded-full hover:bg-emerald-200 hover:-translate-y-1 shadow-cute w-full text-[15px]">
+                    ดูเอกสารฉบับเต็ม
+                    <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 modal-overlay transition-opacity">
+        <div class="bg-white/95 backdrop-blur-md rounded-[2.5rem] w-full max-w-[340px] overflow-hidden shadow-2xl border-[4px] border-white transform transition-all relative">
+            
+            <div class="bg-blue-100 p-5 text-center relative border-b-2 border-white">
+                <h3 class="font-bold text-xl text-blue-600 flex items-center justify-center gap-2">
+                    <span class="animate-bounce-sm text-3xl">🧸</span>
+                    ช่องทางการติดต่อ
+                    <span class="animate-bounce-sm text-3xl" style="animation-delay: 0.2s;">🎀</span>
+                </h3>
+                <button onclick="closeModal('contactModal')" class="absolute right-4 top-4 text-blue-600 hover:bg-blue-400 hover:text-white transition-all bg-white w-8 h-8 rounded-full flex items-center justify-center shadow-sm border-2 border-white hover:rotate-90">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <div class="p-5 space-y-3 max-h-[70vh] overflow-y-auto no-scrollbar">
+                
+                <!-- Link Blocks -->
+                <a href="https://lin.ee/9d454l1" target="_blank" class="flex items-center p-3 bg-white border-[3px] border-[#00B900]/20 rounded-[20px] hover:border-[#00B900]/40 hover:bg-[#00B900]/5 hover:shadow-md transition-all group">
+                    <div class="w-12 h-12 bg-[#00B900] rounded-full flex items-center justify-center text-white shrink-0 shadow-sm group-hover:scale-110 transition-transform border-2 border-white">
+                        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4c-4.962 0-9 3.256-9 7.27 0 3.6 2.583 6.613 6.182 7.158.261.056.61.16.7.425.083.243.054.622.025.875-.035.313-.225 1.107-.273 1.32-.08.348-.383 1.517 1.332.795 1.716-.723 6.302-3.715 8.358-6.173C20.65 14.287 21 12.83 21 11.27 21 7.256 16.962 4 12 4zM8.336 13.5H6.262c-.313 0-.568-.568-.568V8.67c0-.313.255-.568.568-.568.313 0 .568.255.568.568v3.693h1.506c.313 0 .568.255.568.568 0 .313-.255.568-.568.568zm2.668-.568c0 .313-.255.568-.568.568-.313 0-.568-.255-.568-.568V8.67c0-.313.255-.568.568-.568.313 0 .568.255.568.568v4.262zm4.197 0c0 .313-.255.568-.568.568h-1.63c-.313 0-.568-.255-.568-.568V8.67c0-.313.255-.568.568-.568.313 0 .568.255.568.568v4.262h1.63c.313 0 .568.255.568.568zm3.227-2.673c0 .313-.255.568-.568.568h-1.463v1.537c0 .313-.255.568-.568.568-.313 0-.568-.255-.568-.568V8.67c0-.313.255-.568.568-.568.313 0 .568.255.568.568v1.537h1.463c.313 0 .568.255.568.568z"/></svg>
+                    </div>
+                    <div class="ml-3.5">
+                        <p class="font-bold text-[#00B900] text-[13px] leading-tight flex flex-col">
+                            <span>📲 Line หลักร้านผ่อนสินค้า</span>
+                            <span class="text-gray-500 text-[11px] mt-1 font-medium bg-gray-100 inline-block px-2 py-0.5 rounded-full w-fit">( 𝗖𝗹𝗶𝗰𝗸 !👆🏻 )</span>
+                        </p>
+                    </div>
+                </a>
+
+                <a href="https://www.instagram.com/jns.2hand/" target="_blank" class="flex items-center p-3 bg-white border-[3px] border-pink-100 rounded-[20px] hover:border-pink-300 hover:bg-pink-50 hover:shadow-md transition-all group">
+                    <div class="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center text-white shrink-0 shadow-sm group-hover:scale-110 transition-transform border-2 border-white">
+                        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 4.326c-3.148 0-3.519.012-4.758.068-2.615.119-3.418.922-3.537 3.537-.056 1.239-.068 1.61-.068 4.758 0 3.148.012 3.519.068 4.758.119 2.615.922 3.418 3.537 3.537 1.239.056 1.61.068 4.758.068 3.148 0 3.519-.012 4.758-.068 2.615-.119 3.418-.922 3.537-3.537.056-1.239.068-1.61.068-4.758 0-3.148-.012-3.519-.068-4.758-.119-2.615-.922-3.418-3.537-3.537-1.239-.056-1.61-.068-4.758-.068zm0 3.837a3.837 3.837 0 100 7.674 3.837 3.837 0 000-7.674zm0 5.837a2 2 0 110-4 2 2 0 010 4zm3.435-6.6a1.2 1.2 0 100 2.4 1.2 1.2 0 000-2.4z"/></svg>
+                    </div>
+                    <div class="ml-3.5">
+                        <p class="font-bold text-pink-600 text-[13px] leading-tight flex flex-col">
+                            <span>💻 IG สินค้าไอโฟน-ไอแพด มือ2</span>
+                            <span class="text-gray-500 text-[11px] mt-1 font-medium bg-gray-100 inline-block px-2 py-0.5 rounded-full w-fit">( 𝗖𝗹𝗶𝗰𝗸 !👆🏻 )</span>
+                        </p>
+                    </div>
+                </a>
+
+                <a href="https://line.me/ti/g2/tH5otMtzc0MGqWd5ZySP16XlcudEquWLPe4epQ?utm_source=invitation&utm_medium=link_copy&utm_campaign=default" target="_blank" class="flex items-center justify-center p-3 bg-white border-[3px] border-[#00B900]/20 rounded-[20px] hover:border-[#00B900]/40 hover:bg-[#00B900]/5 hover:shadow-md transition-all group relative overflow-hidden">
+                    <div class="w-12 h-12 bg-[#00B900] rounded-full flex items-center justify-center text-white shrink-0 shadow-sm group-hover:scale-110 transition-transform absolute left-3 border-2 border-white">
+                        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4c-4.962 0-9 3.256-9 7.27 0 3.6 2.583 6.613 6.182 7.158.261.056.61.16.7.425.083.243.054.622.025.875-.035.313-.225 1.107-.273 1.32-.08.348-.383 1.517 1.332.795 1.716-.723 6.302-3.715 8.358-6.173C20.65 14.287 21 12.83 21 11.27 21 7.256 16.962 4 12 4zM8.336 13.5H6.262c-.313 0-.568-.568-.568V8.67c0-.313.255-.568.568-.568.313 0 .568.255.568.568v3.693h1.506c.313 0 .568.255.568.568 0 .313-.255.568-.568.568zm2.668-.568c0 .313-.255.568-.568.568-.313 0-.568-.255-.568-.568V8.67c0-.313.255-.568.568-.568.313 0 .568.255.568.568v4.262zm4.197 0c0 .313-.255.568-.568.568h-1.63c-.313 0-.568-.255-.568-.568V8.67c0-.313.255-.568.568-.568.313 0 .568.255.568.568v4.262h1.63c.313 0 .568.255.568.568zm3.227-2.673c0 .313-.255.568-.568.568h-1.463v1.537c0 .313-.255.568-.568.568-.313 0-.568-.255-.568-.568V8.67c0-.313.255-.568.568-.568.313 0 .568.255.568.568v1.537h1.463c.313 0 .568.255.568.568z"/></svg>
+                    </div>
+                    <div class="ml-12 text-center w-full">
+                        <p class="font-bold text-[#00B900] text-[13px] leading-tight flex flex-col items-center">
+                            <span>📩 กลุ่ม Line อัพเดทสินค้า</span>
+                            <span class="text-gray-500 text-[11px] mt-1 font-medium bg-gray-100 inline-block px-2 py-0.5 rounded-full w-fit">( 𝗖𝗹𝗶𝗰𝗸 !👆🏻 )</span>
+                        </p>
+                    </div>
+                </a>
+
+                <a href="https://www.tiktok.com/@jns.connect?_t=ZS-8wLbEgzgRtN&_r=1" target="_blank" class="flex items-center p-3 bg-white border-[3px] border-gray-200 rounded-[20px] hover:border-gray-400 hover:bg-gray-50 hover:shadow-md transition-all group">
+                    <div class="w-12 h-12 bg-black rounded-full flex items-center justify-center text-white shrink-0 shadow-sm group-hover:scale-110 transition-transform relative border-2 border-white">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 2.23-1.07 4.54-2.81 5.92-1.76 1.4-4.22 1.83-6.42 1.25-2.07-.54-3.86-2.05-4.59-4.08-.73-2.01-.5-4.41.6-6.26 1.05-1.78 2.91-3.02 4.96-3.32.14-.02.28-.03.42-.04v4.13c-.38.07-.76.15-1.11.33-.86.44-1.5 1.34-1.65 2.31-.15.96.11 1.98.74 2.75.64.77 1.65 1.2 2.65 1.25 1.12.06 2.26-.27 3.04-1.02.8-.76 1.25-1.85 1.3-2.95.06-2.58.04-5.16.05-7.74.01-3.13.01-6.26.01-9.39z"/></svg>
+                    </div>
+                    <div class="ml-3.5">
+                        <p class="font-bold text-gray-800 text-[13px] leading-tight flex flex-col">
+                            <span>📷 Tik Tok ลงคลิปรีวิว</span>
+                            <span class="text-gray-500 text-[11px] mt-1 font-medium bg-gray-100 inline-block px-2 py-0.5 rounded-full w-fit">( 𝗖𝗹𝗶𝗰𝗸 !👆🏻 )</span>
+                        </p>
+                    </div>
+                </a>
+
+                <!-- Warning Alert inside modal -->
+                <div class="mt-4 bg-white border-[3px] border-red-200 rounded-2xl p-3 text-center shadow-inner-cute">
+                    <p class="font-bold text-red-500 text-[13px] animate-pulse leading-snug">⚠️ คำเตือน! : ทางร้านไม่ตอบ DM ไอจีทุกกรณี รบกวนทักไลน์เท่านั้น!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <div id="scrollTopBtn" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 transition-all duration-300 transform translate-y-24 opacity-0 pointer-events-none">
+        <div class="relative group">
+            <button onclick="scrollToTop()" class="bg-white border-4 border-jns-purple text-jns-purple rounded-full w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center shadow-cute hover:bg-jns-purple hover:text-white transition-all hover:scale-110 focus:outline-none focus:ring-4 focus:ring-jns-purple/30 group animate-bounce pointer-events-auto">
+                <span class="text-2xl sm:text-3xl transition-transform group-hover:-translate-y-1">👆🏻</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Logic Script -->
+    <script>
+        // Check Store Status based on Time (08:00 - 00:00 is OPEN)
+        function checkStoreStatus() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            
+            const statusContainer = document.getElementById('storeStatusContainer');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
+
+            const isOpen = currentHour >= 8;
+
+            if (isOpen) {
+                statusContainer.className = 'px-4 py-1.5 rounded-full font-bold text-[13px] shadow-inner-cute flex items-center justify-center gap-1.5 bg-green-100 text-green-600 border-2 border-white w-full sm:w-auto';
+                statusIcon.innerHTML = '✅';
+                statusText.innerText = 'เปิดร้านค้าบ';
+            } else {
+                statusContainer.className = 'px-4 py-1.5 rounded-full font-bold text-[13px] shadow-inner-cute flex items-center justify-center gap-1.5 bg-red-100 text-red-500 border-2 border-white w-full sm:w-auto';
+                statusIcon.innerHTML = '💤';
+                statusText.innerText = 'ปิดร้านค้าบ';
+            }
+        }
+
+        // Run once on load
+        checkStoreStatus();
+        setInterval(checkStoreStatus, 60000);
+
+        // Modal Logic
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; 
+                
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeModal(modalId);
+                    }
+                }, { once: true });
+            } else {
+                console.error("Modal not found: " + modalId);
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Scroll to Top Logic
+        const scrollTopBtn = document.getElementById('scrollTopBtn');
+        
+        window.addEventListener('scroll', () => {
+            if(!scrollTopBtn) return;
+            
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            
+            const isNearBottom = (documentHeight - (scrollTop + windowHeight)) < 150;
+
+            if (isNearBottom) {
+                scrollTopBtn.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+            } else {
+                scrollTopBtn.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    </script>
+</body>
+</html>
